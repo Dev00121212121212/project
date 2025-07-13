@@ -1,0 +1,62 @@
+
+{
+  "rules": {
+    // Default deny all reads and writes
+    ".read": false,
+    ".write": false,
+    
+    "paintings": {
+      // Paintings are publically readable
+      ".read": true,
+      // Only authenticated users can write/update paintings
+      ".write": "auth != null",
+      // Validate the data being written
+      "$paintingId": {
+        ".validate": "newData.hasChildren(['title', 'artist', 'style', 'description', 'price', 'imageUrl', 'likes', 'createdAt']) && newData.child('title').isString() && newData.child('price').isNumber() && newData.child('likes').isNumber()"
+      }
+    },
+    
+    "artists": {
+      // Artists are publically readable
+      ".read": true,
+      // Only authenticated users can write/update artists
+      ".write": "auth != null",
+      "$artistId": {
+        ".validate": "newData.hasChildren(['name', 'bio', 'imageUrl']) && newData.child('name').isString()"
+      }
+    },
+    
+    "categories": {
+       // Categories are publically readable
+      ".read": true,
+      // Only authenticated users can write/update categories
+      ".write": "auth != null",
+      "$categoryId": {
+        ".validate": "newData.hasChildren(['name']) && newData.child('name').isString()"
+      }
+    },
+    
+    "siteSettings": {
+       // Site settings are publically readable
+      ".read": true,
+      // Only authenticated users can write/update settings
+      ".write": "auth != null"
+    },
+    
+    "orders": {
+      // Orders can only be read or written by authenticated users.
+      ".read": "auth != null",
+      ".write": "auth != null",
+      // Further rules could be added to restrict access to only the user who made the order
+      // For example: ".read": "auth.uid === data.child('userId').val()"
+    },
+    
+    "users": {
+      // User-specific data can only be read/written by the authenticated user themselves
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    }
+  }
+}
